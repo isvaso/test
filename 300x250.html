@@ -1,0 +1,88 @@
+<!-- Sizmek, 2018-10-12 -->
+<!DOCTYPE html>
+<html>
+   <head>
+   <title>300x250</title>
+   <meta charset="UTF-8">
+   <meta name="ad.size" content="width=300,height=250">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingcachedScripts/libraries/createjs/createjs-2015.11.26.min.js"></script>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingScript/EBLoader.js"></script>
+   <style type="text/css">
+   body { margin:0px; overflow-x: hidden; }
+   #canvas { cursor: pointer; width: 300px; height: 250px; }
+   </style>
+<script src="300x250.js"></script>
+   <script>
+   function isLocal(){
+     return /(sizmek\.ru|file\:\/\/\/|localhost|192\.168\.|127\.0\.0\.1)/.test(window.location.href);
+   }
+   function clickthrough1(){
+      EB.clickthrough();
+      if(isLocal()){
+         console.log('> click');
+      }
+   }
+   function initEB() {
+      if (!EB.isInitialized()) {
+         EB.addEventListener(EBG.EventName.EB_INITIALIZED, startAd);
+      } else {
+         startAd();
+      }
+   }
+   function startAd() {
+      init();
+   }
+   if(isLocal()){
+      console.log(' -- Sizmek, 2018-10-12 -- ');
+   }
+   var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+   function init() {
+      canvas = document.getElementById("canvas");
+      anim_container = document.getElementById("animation_container");
+      dom_overlay_container = document.getElementById("dom_overlay_container");
+	var comp=AdobeAn.getComposition("8AD0340AF8954BCCAB94761920386646");
+	var lib=comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt){handleFileLoad(evt,comp)});
+	loader.addEventListener("complete", function(evt){handleComplete(evt,comp)});
+	var lib=comp.getLibrary();
+	loader.loadManifest(lib.properties.manifest);
+      // CLICK //////
+      document.getElementById('animation_container').addEventListener('click', clickthrough1);
+      // CLICK //////
+   }
+function handleFileLoad(evt, comp) {
+	var images=comp.getImages(); 
+	if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }  
+}
+function handleComplete(evt,comp) {
+	var lib=comp.getLibrary();
+	var ss=comp.getSpriteSheet();
+	var queue = evt.target;
+	var ssMetadata = lib.ssMetadata;
+	for(i=0; i<ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
+	}
+	exportRoot = new lib._300x250();
+	stage = new lib.Stage(canvas);
+	stage.enableMouseOver();   
+      fnStartAnimation = function() {
+		stage.addChild(exportRoot);
+		createjs.Ticker.setFPS(lib.properties.fps);
+		createjs.Ticker.addEventListener("tick", stage);
+	}        
+	AdobeAn.makeResponsive(false,'both',false,1,[canvas,anim_container,dom_overlay_container]);
+	AdobeAn.compositionLoaded(lib.properties.id);
+	fnStartAnimation();
+}
+   </script>
+   </head>
+   <body onload="initEB();">
+      <div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:300px; height:250px">
+         <canvas id="canvas" width="300" height="250" style="position: absolute; display: block; background-color:rgba(255, 255, 255, 1.00);"></canvas>
+         <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:300px; height:250px; position: absolute; left: 0px; top: 0px; display: block;"></div>
+      </div>
+   </body>
+</html>
